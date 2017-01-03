@@ -24,7 +24,7 @@ from zipline.data.bundles.maxdl import maxdl_bundle
 
 bundle = 'maxdl'
 
-start_session_str = '2016-10-01'
+start_session_str = '2016-01-01'
 
 register(
         bundle,
@@ -60,18 +60,21 @@ def initialize(context):
 
 def handle_daily_data(context, data):
 #    sym = symbol('002337.SZ')
-    print(data.current(symbol('002337.SZ'), 'price'))
+    print(data.current(symbol('002337.SZ'), 'close'))
 
 if __name__ == "__main__":
     print("hello my quant.")
     sim_params = create_simulation_parameters(
-        start=pd.to_datetime(start_session_str + " 00:00:00").tz_localize("Asia/Shanghai"),
-        end=pd.to_datetime("2016-10-09 00:00:00").tz_localize("Asia/Shanghai"),
+        start=pd.to_datetime("2016-06-01 00:00:00").tz_localize("Asia/Shanghai"),
+        end=pd.to_datetime("2016-06-10 00:00:00").tz_localize("Asia/Shanghai"),
         data_frequency="daily", emission_rate="daily", trading_calendar=shsz_calendar)
 
-    algor_obj = TradingAlgorithm(initialize=initialize,
+    perf = TradingAlgorithm(initialize=initialize,
                                  handle_data=handle_daily_data,
                                  sim_params=sim_params,
                                  env=trading.environment,
                                  trading_calendar=shsz_calendar
                                  ).run(data, overwrite_sim_params=False)
+
+    perf.to_pickle('d:\\temp\\output.pickle')
+    print(perf.head())
