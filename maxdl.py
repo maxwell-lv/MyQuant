@@ -92,8 +92,8 @@ def get_hist_data(symbol_map, histories):
 if __name__ == "__main__":
     environ = os.environ
     sl = environ.get('test_symbols')
-    end = "2016-12-20"
-    start = "2016-01-01"
+    end = "2016-06-10"
+    start = "2016-06-01"
     d, h, s = get_basic_info(symbol_list=sl, start_session=start, end_session=end)
     print(d)
     for s, h in get_hist_data(s, h):
