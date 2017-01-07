@@ -19,6 +19,8 @@ from zipline.utils.factory import create_simulation_parameters
 from zipline.data.bundles.core import load
 from zipline.data.data_portal import DataPortal
 
+from loader import load_market_data
+
 from cn_stock_holidays.zipline.default_calendar import shsz_calendar
 from zipline.data.bundles.maxdl import maxdl_bundle
 
@@ -31,7 +33,7 @@ register(
         maxdl_bundle,
         "SHSZ",
         pd.Timestamp(start_session_str, tz='utc'),
-        pd.Timestamp('2016-12-30', tz='utc')
+        pd.Timestamp('2016-12-31', tz='utc')
         )
 
 bundle_data = load(bundle, os.environ, None,)
@@ -43,7 +45,9 @@ prefix, connstr = re.split(
 )
 
 env = trading.environment = TradingEnvironment(asset_db_path=connstr,
-                                               trading_calendar=shsz_calendar)
+                                               trading_calendar=shsz_calendar,
+                                               bm_symbol='000001.SS',
+                                               load=load_market_data)
 
 first_trading_day = bundle_data.equity_daily_bar_reader.first_trading_day
 
@@ -61,13 +65,14 @@ def initialize(context):
 
 def handle_daily_data(context, data):
 #    sym = symbol('002337.SZ')
-    print(data.current(symbol('002337.SZ'), 'close'))
+    #print(data)
+    print(data.current(symbol('002337.SZ'), 'open'))
 
 if __name__ == "__main__":
     print("hello my quant.")
     sim_params = create_simulation_parameters(
-        start=pd.to_datetime("2016-11-01 00:00:00").tz_localize("Asia/Shanghai"),
-        end=pd.to_datetime("2016-11-30 00:00:00").tz_localize("Asia/Shanghai"),
+        start=pd.to_datetime("2016-12-01 00:00:00").tz_localize("Asia/Shanghai"),
+        end=pd.to_datetime("2016-12-30 00:00:00").tz_localize("Asia/Shanghai"),
         data_frequency="daily", emission_rate="daily", trading_calendar=shsz_calendar)
 
     perf = TradingAlgorithm(initialize=initialize,
@@ -78,4 +83,4 @@ if __name__ == "__main__":
                                  ).run(data, overwrite_sim_params=False)
 
     perf.to_pickle('d:\\temp\\output.pickle')
-    print(perf.head())
+    print(perf)
