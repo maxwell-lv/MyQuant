@@ -56,7 +56,8 @@ data = DataPortal(
 )
 
 def initialize(context):
-    schedule_function(handle_daily_data, date_rules.every_day())
+    pass
+    #schedule_function(handle_daily_data, date_rules.every_day())
 
 def handle_daily_data(context, data):
 #    sym = symbol('002337.SZ')
@@ -65,8 +66,8 @@ def handle_daily_data(context, data):
 if __name__ == "__main__":
     print("hello my quant.")
     sim_params = create_simulation_parameters(
-        start=pd.to_datetime("2016-06-01 00:00:00").tz_localize("Asia/Shanghai"),
-        end=pd.to_datetime("2016-06-10 00:00:00").tz_localize("Asia/Shanghai"),
+        start=pd.to_datetime("2016-11-01 00:00:00").tz_localize("Asia/Shanghai"),
+        end=pd.to_datetime("2016-11-30 00:00:00").tz_localize("Asia/Shanghai"),
         data_frequency="daily", emission_rate="daily", trading_calendar=shsz_calendar)
 
     perf = TradingAlgorithm(initialize=initialize,

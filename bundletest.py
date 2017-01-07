@@ -11,7 +11,7 @@ register(
     maxdl_bundle,
     'SHSZ',
     pd.Timestamp('2016-11-01', tz='utc'),
-    pd.Timestamp('2016-11-07', tz='utc')
+    pd.Timestamp('2016-11-30', tz='utc')
 )
 
 def ingest(bundle, assets_version, show_progress):
@@ -26,4 +26,4 @@ def ingest(bundle, assets_version, show_progress):
     )
 
 if __name__ == "__main__":
-    ingest(bundle='maxdl', assets_version=0, show_progress=False)
+    ingest(bundle='maxdl', assets_version=(), show_progress=False)
