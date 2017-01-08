@@ -26,14 +26,14 @@ from zipline.data.bundles.maxdl import maxdl_bundle
 
 bundle = 'maxdl'
 
-start_session_str = '2016-01-01'
+start_session_str = '2016-01-04'
 
 register(
         bundle,
         maxdl_bundle,
         "SHSZ",
         pd.Timestamp(start_session_str, tz='utc'),
-        pd.Timestamp('2016-12-31', tz='utc')
+        pd.Timestamp('2016-12-30', tz='utc')
         )
 
 bundle_data = load(bundle, os.environ, None,)

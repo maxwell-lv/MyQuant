@@ -24,7 +24,7 @@ def maxdl_bundle(environ,
     index_list = environ.get('benchmark_symbols')
     metadata, histories, symbol_map = get_basic_info(show_progress=show_progress, symbol_list=symbol_list, start_session=timestamp_to_date_string(start_session), end_session=timestamp_to_date_string(end_session))
     asset_db_writer.write(metadata)
-    daily_bar_writer.write(get_hist_data(symbol_map, histories), show_progress=show_progress)
+    daily_bar_writer.write(get_hist_data(symbol_map, histories, start_session, end_session, calendar), show_progress=show_progress)
     adjustment_writer.write()
 
 def timestamp_to_date_string(timestamp):
@@ -82,11 +82,15 @@ def convert_symbol_series(s):
     s['exchange'] = e
     return s
 
-def get_hist_data(symbol_map, histories):
+def get_hist_data(symbol_map, histories, start_session, end_session, calendar):
     for sid, index in symbol_map.iteritems():
         history = histories[index]
         del history['code']
         history.set_index('date', inplace=True)
+        sessions = calendar.sessions_in_range(start_session, end_session)
+        # new_index = sessions.tz_localize(None).date
+        new_index = sessions.strftime("%Y-%m-%d")
+        history = history.reindex(new_index, copy=False, fill_value=0.0)
         yield sid, history.sort_index()
 
 if __name__ == "__main__":
