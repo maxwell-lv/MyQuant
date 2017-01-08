@@ -10,8 +10,8 @@ register(
     'maxdl',
     maxdl_bundle,
     'SHSZ',
-    pd.Timestamp('2016-11-01', tz='utc'),
-    pd.Timestamp('2016-11-30', tz='utc')
+    pd.Timestamp('2016-01-01', tz='utc'),
+    pd.Timestamp('2016-12-31', tz='utc')
 )
 
 def ingest(bundle, assets_version, show_progress):
