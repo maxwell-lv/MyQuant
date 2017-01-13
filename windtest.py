@@ -9,10 +9,10 @@ def DemoWSQCallback(indata):
         print('error code:'+str(indata.ErrorCode)+'\n');
         return();
 
-    print(indata.Data[0][0])
+    print(indata)
 
 if __name__ == "__main__":
     w.start()
 
-    data=w.wsq("002337.SZ", "rt_time,rt_pre_close,rt_open,rt_high,rt_low,rt_last,rt_vol,rt_pct_chg,rt_swing,rt_vwap", func=DemoWSQCallback)
+    data=w.wsq("002337.SZ,600433.SH", "rt_time,rt_pre_close,rt_open,rt_high,rt_low,rt_last,rt_vol,rt_pct_chg,rt_swing,rt_vwap", func=DemoWSQCallback)
     print(data.Codes)
