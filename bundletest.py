@@ -9,9 +9,9 @@ from cn_stock_holidays.zipline.default_calendar import shsz_calendar
 register(
     'maxdl',
     maxdl_bundle,
-    'SHSZ',
-    pd.Timestamp('2008-01-04', tz='utc'),
-    pd.Timestamp('2016-12-30', tz='utc')
+    calendar='SHSZ',
+    start_session=pd.Timestamp('2008-01-04', tz='utc'),
+    end_session=pd.Timestamp('2016-12-30', tz='utc')
 )
 
 def ingest(bundle, assets_version, show_progress):
