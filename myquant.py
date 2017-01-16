@@ -20,7 +20,7 @@ from zipline.finance import trading
 from zipline.utils.factory import create_simulation_parameters
 from zipline.data.bundles.core import load
 from zipline.data.data_portal import DataPortal
-from zipline.api import order_target, record, symbol
+from zipline.api import order_target, record, symbol, order_target_percent, order_percent
 
 from loader import load_market_data
 
@@ -65,6 +65,7 @@ data = DataPortal(
 
 def initialize(context):
     context.i = 0
+    context.full = False
     #schedule_function(handle_daily_data, date_rules.every_day())
 
 def handle_daily_data(context, data):
@@ -85,9 +86,17 @@ def handle_daily_data(context, data):
     if short_mavg > long_mavg:
         # order_target orders as many shares as needed to
         # achieve the desired number of shares.
-        order_target(sym, 100)
+        if not context.full:
+            order_target_percent(sym, 0.9)
+            context.full = True
+        #order_target_percent(sym, 1)
+#        context.order_percent(sym, 1)
     elif short_mavg < long_mavg:
-        order_target(sym, 0)
+        if context.full:
+            order_target_percent(sym, 0)
+            context.full = False
+        #order_target_percent(sym, 0)
+       # context.order_percent(sym, 0)
 
     # Save values for later inspection
     record(sxkj=data[sym].price,
@@ -119,7 +128,7 @@ def analyse(context, perf):
 if __name__ == "__main__":
     print("hello my quant.")
     sim_params = create_simulation_parameters(
-        start=pd.to_datetime("2013-01-15 00:00:00").tz_localize("Asia/Shanghai"),
+        start=pd.to_datetime("2010-01-15 00:00:00").tz_localize("Asia/Shanghai"),
         end=pd.to_datetime("2016-12-30 00:00:00").tz_localize("Asia/Shanghai"),
         data_frequency="daily", emission_rate="daily", trading_calendar=shsz_calendar)
 
