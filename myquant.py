@@ -26,6 +26,9 @@ from loader import load_market_data
 
 from cn_stock_holidays.zipline.default_calendar import shsz_calendar
 from zipline.data.bundles.maxdl import maxdl_bundle
+from zipline.finance.commission import PerDollar
+from zipline.finance.blotter import Blotter
+from zipline.finance.slippage import FixedSlippage
 
 bundle = 'maxdl'
 
@@ -124,21 +127,29 @@ def analyse(context, perf):
     ax2.set_ylabel('price in ￥')
     plt.legend(loc=0)
     plt.show()
+    print(buys)
+    print(sells)
 
 if __name__ == "__main__":
-    print("hello my quant.")
+    data_frequency = "daily"
+
     sim_params = create_simulation_parameters(
         start=pd.to_datetime("2010-01-15 00:00:00").tz_localize("Asia/Shanghai"),
         end=pd.to_datetime("2016-12-30 00:00:00").tz_localize("Asia/Shanghai"),
-        data_frequency="daily", emission_rate="daily", trading_calendar=shsz_calendar)
+        data_frequency=data_frequency, emission_rate="daily", trading_calendar=shsz_calendar)
+
+    blotter = Blotter(data_frequency = data_frequency,
+                      asset_finder=env.asset_finder,
+                      slippage_func=FixedSlippage(),
+                      commission = PerDollar(cost=0.00025))
 
     perf = TradingAlgorithm(initialize=initialize,
                                  handle_data=handle_daily_data,
                                  sim_params=sim_params,
                                  env=trading.environment,
                                  trading_calendar=shsz_calendar,
-                                 analyze=analyse
+                                 analyze=analyse,
+                                 blotter=blotter
                                  ).run(data, overwrite_sim_params=False)
 
     perf.to_pickle('d:\\temp\\output.pickle')
-    print(perf)
