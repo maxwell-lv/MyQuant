@@ -29,6 +29,7 @@ from zipline.data.bundles.maxdl import maxdl_bundle
 from zipline.finance.commission import PerDollar
 from zipline.finance.blotter import Blotter
 from zipline.finance.slippage import FixedSlippage
+from zipline.pipeline.factors import RSI, SimpleMovingAverage, BollingerBands
 
 bundle = 'maxdl'
 
@@ -72,7 +73,7 @@ def initialize(context):
     #schedule_function(handle_daily_data, date_rules.every_day())
 
 def handle_daily_data(context, data):
-    sym = symbol('002337.SZ')
+    sym = symbol('600418.SS')
 #    print(data.current(symbol('002337.SZ'), 'open'))
     # Skip first 300 days to get full windows
     context.i += 1
@@ -84,6 +85,7 @@ def handle_daily_data(context, data):
     # from above and returns a pandas dataframe.
     short_mavg = data.history(sym, 'price', 100, '1d').mean()
     long_mavg = data.history(sym, 'price', 300, '1d').mean()
+    bb = BollingerBands()
 
     # Trading logic
     if short_mavg > long_mavg:
@@ -113,7 +115,7 @@ def analyse(context, perf):
     ax1.set_ylabel('portfolio value in ￥')
 
     ax2 = fig.add_subplot(212)
-    perf['sxkj'].plot(ax=ax2)
+    perf['jhqc'].plot(ax=ax2)
     perf[['short_mavg', 'long_mavg']].plot(ax=ax2)
 
     perf_trans = perf.ix[[t != [] for t in perf.transactions]]
