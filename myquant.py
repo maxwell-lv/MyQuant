@@ -81,6 +81,7 @@ data = DataPortal(
 def initialize(context):
     context.i = 0
     context.full = False
+    context.state = 0
     bb = BollingerBands(window_length=42, k=2)
     lower = bb.lower
     upper = bb.upper
@@ -105,8 +106,29 @@ def before_trading_start(context, data):
 
 def handle_daily_data(context, data):
     sym = symbol('600418.SS')
-    # print(data.current(sym, 'price'))
     pipe = pipeline_output('my_pipeline')
+    price = data.current(sym, 'close')
+    upper = pipe['upper'][sym]
+    lower = pipe['lower'][sym]
+
+    if price == 0.0:
+        print(price)
+        return
+
+    if context.state == 0:
+        if price < lower:
+            context.state = 1
+        elif price > upper:
+            context.state = 2
+    elif context.state == 1:
+        if price > lower:
+            order_target_percent(sym, 1.0)
+            context.state = 0
+    elif context.state == 2:
+        if  lower < price < upper:
+            order_target_percent(sym, 0)
+            context.state = 0
+
     record(jhqc = data.current(sym, 'price'),
            upper = pipe['upper'][sym],
            lower = pipe['lower'][sym]
@@ -158,21 +180,20 @@ def analyse(context, perf):
     perf_trans = perf.ix[[t != [] for t in perf.transactions]]
     buys = perf_trans.ix[[t[0]['amount'] > 0 for t in perf_trans.transactions]]
     sells = perf_trans.ix[[t[0]['amount'] < 0 for t in perf_trans.transactions]]
-    # ax2.plot(buys.index, perf.short_mavg.ix[buys.index],
-    #          '^', markersize=10, color='m')
-    # ax2.plot(sells.index, perf.short_mavg.ix[sells.index],
-    #          'v', markersize=10, color='k')
+    ax2.plot(buys.index, perf.lower.ix[buys.index],
+             '^', markersize=10, color='m')
+    ax2.plot(sells.index, perf.upper.ix[sells.index],
+             'v', markersize=10, color='k')
     ax2.set_ylabel('price in ￥')
     plt.legend(loc=0)
     plt.show()
-    print(buys)
-    print(sells)
+
 
 if __name__ == "__main__":
     data_frequency = "daily"
 
     sim_params = create_simulation_parameters(
-        start=pd.to_datetime("2016-01-04 00:00:00").tz_localize("Asia/Shanghai"),
+        start=pd.to_datetime("2014-01-05 00:00:00").tz_localize("Asia/Shanghai"),
         end=pd.to_datetime("2016-12-30 00:00:00").tz_localize("Asia/Shanghai"),
         data_frequency=data_frequency, emission_rate="daily", trading_calendar=shsz_calendar)
 
