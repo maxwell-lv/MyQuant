@@ -3,12 +3,12 @@ import os
 import pandas as pd
 from zipline.data.bundles import register
 
-from zipline.data.bundles.maxdl import maxdl_bundle
+from zipline.data.bundles.maxdl import maxdl_bundle, nonnew_bundle
 from cn_stock_holidays.zipline.default_calendar import shsz_calendar
 
 register(
     'maxdl',
-    maxdl_bundle,
+    nonnew_bundle,
     calendar='SHSZ',
     start_session=pd.Timestamp('2008-01-04', tz='utc'),
     end_session=pd.Timestamp('2016-12-30', tz='utc')

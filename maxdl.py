@@ -2,9 +2,61 @@ import click
 import tushare as ts
 import pandas as pd
 import os
-import datetime
+from datetime import datetime, timedelta
 
 from zipline.data.bundles import core as bundles
+
+def nonnew_bundle(environ,
+                 asset_db_writer,
+                 minute_bar_writer,
+                 daily_bar_writer,
+                 adjustment_writer,
+                 calendar,
+                 start_session,
+                 end_session,
+                 cache,
+                 show_progress,
+                 output_dir):
+    if show_progress:
+        click.echo('getting non-new stock info')
+
+    ts_symbols = ts.get_stock_basics()
+
+    symbols = []
+
+    histories = {}
+
+    i = 0
+    total = len(ts_symbols)
+    today = datetime.now().date()
+    for index, row in ts_symbols.iterrows():
+        i += 1
+        srow = {}
+        click.echo("getting symbol %s(%s) history (%d/%d)" % (index, row['name'], i, total))
+        timeToMarket = timeInttoDate(ts_symbols.loc[index]['timeToMarket'])
+        if today - timeToMarket < timedelta(365):
+            print('too new.')
+            continue
+        histories[index] = ts.get_k_data(index, start=timestamp_to_date_string(start_session), end=timestamp_to_date_string(end_session))
+        srow['start_date'] = histories[index].iloc[0].date
+        srow['end_date'] = histories[index].iloc[-1].date
+        srow['symbol'] = index
+        srow['asset_name'] = row['name']
+        symbols.append(srow)
+
+    df_symbols = pd.DataFrame(data=symbols).sort_values('symbol')
+    symbol_map = pd.DataFrame.copy(df_symbols.symbol)
+
+    # fix the symbol exchange info
+    df = df_symbols.apply(func=convert_symbol_series, axis=1)
+
+    asset_db_writer.write(df_symbols)
+    daily_bar_writer.write(get_hist_data(symbol_map, df, start_session, end_session, calendar),
+                           show_progress=show_progress)
+    adjustment_writer.write()
+
+def timeInttoDate(timeInt):
+    return datetime.strptime(str(timeInt), "%Y%m%d").date()
 
 #@bundles.register('maxdl')
 def maxdl_bundle(environ,
