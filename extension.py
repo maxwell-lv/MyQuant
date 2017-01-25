@@ -9,12 +9,12 @@ register(
     maxdl_bundle,
     'SHSZ',
     pd.Timestamp('2008-12-19', tz='utc'),
-    pd.Timestamp('2016-12-30', tz='utc')
+    pd.Timestamp('2017-01-24', tz='utc')
 )
 register(
     'nonnewdl',
     nonnew_bundle,
     'SHSZ',
     pd.Timestamp('2008-12-19', tz='utc'),
-    pd.Timestamp('2016-12-30', tz='utc')
+    pd.Timestamp('2017-01-24', tz='utc')
 )
