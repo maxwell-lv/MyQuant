@@ -242,7 +242,7 @@ def _run(handle_data,
         data = DataPortal(
             env.asset_finder, get_calendar("SHSZ"),
             first_trading_day=first_trading_day,
-            equity_minute_reader=bundle_data.equity_minute_bar_reader,
+            # equity_minute_reader=bundle_data.equity_minute_bar_reader,
             equity_daily_reader=bundle_data.equity_daily_bar_reader,
             adjustment_reader=bundle_data.adjustment_reader,
         )
@@ -271,6 +271,7 @@ def _run(handle_data,
         namespace=namespace,
         capital_base=capital_base,
         env=env,
+        trading_calendar=shsz_calendar,
         get_pipeline_loader=choose_loader,
         blotter=blotter,
         sim_params=create_simulation_parameters(
@@ -278,6 +279,7 @@ def _run(handle_data,
             end=end,
             capital_base=capital_base,
             data_frequency=data_frequency,
+            trading_calendar=shsz_calendar
         ),
         **{
             'initialize': initialize,
