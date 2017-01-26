@@ -24,6 +24,8 @@ def initialize(context):
 
 def handle_data(context, data):
     pipe = pipeline_output('sma_pipeline')
+    assests = data.keys()
+    print([e.asset_name for e in assests])
 
 def analyse(context, perf):
     fig = plt.figure()
