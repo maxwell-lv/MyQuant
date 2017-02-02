@@ -29,7 +29,7 @@ def get_lianban_stock_list():
 def main():
     stocks = get_lianban_stock_list()
     symbols = [symbol_to_wind(s) for s in stocks]
-    fields = "rt_pre_close,rt_low,rt_last"
+    fields = "rt_pre_close,rt_last"
     windcodes = ','.join(symbols)
     w.start()
     data = w.wsq(windcodes, fields)
