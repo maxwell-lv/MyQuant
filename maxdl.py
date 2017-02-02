@@ -101,7 +101,7 @@ def get_basic_info(show_progress=True, symbol_list=None, start_session=None, end
     i = 0
     total = len(ts_symbols)
     for index, row in ts_symbols.iterrows():
-        i = i +1
+        i += 1
 
         srow = {}
         click.echo("getting symbol %s(%s) history (%d/%d)" % (index, row['name'], i, total))
