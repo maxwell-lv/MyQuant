@@ -2,6 +2,7 @@ import tushare as ts
 from datetime import datetime, timedelta, date
 from cn_stock_holidays.zipline.default_calendar import shsz_calendar
 import click
+import pandas as pd
 
 # 获取到目前为止还在连板的新股
 
@@ -78,6 +79,15 @@ def symbol_to_wind(symbol):
         return symbol + '.SH'
     else:
         return symbol + '.SZ'
+
+def wind_to_dataframe(data):
+    d = {}
+    i = 0
+    for field in data.Fields:
+        d[field] = data.Data[i]
+        i += 1
+    df = pd.DataFrame(d, index=data.Codes)
+    return df
 
 if __name__ == "__main__":
     result = get_lianban_new_stock(date(year=2017, month=1, day=26))
