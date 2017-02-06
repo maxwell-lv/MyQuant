@@ -302,5 +302,37 @@ def _run(handle_data,
 
     return perf
 
+
+@main.command()
+@click.option(
+    '-b',
+    '--bundle',
+    default='quantopian-quandl',
+    metavar='BUNDLE-NAME',
+    show_default=True,
+    help='The data bundle to ingest.',
+)
+@click.option(
+    '--assets-version',
+    type=int,
+    multiple=True,
+    help='Version of the assets db to which to downgrade.',
+)
+@click.option(
+    '--show-progress/--no-show-progress',
+    default=True,
+    help='Print progress information to the terminal.'
+)
+def ingest(bundle, assets_version, show_progress):
+    """Ingest the data for the given bundle.
+    """
+    bundles_module.ingest(
+        bundle,
+        os.environ,
+        pd.Timestamp.utcnow(),
+        assets_version,
+        show_progress,
+    )
+
 if __name__ == '__main__':
     main()

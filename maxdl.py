@@ -33,7 +33,10 @@ def nonnew_bundle(environ,
         i += 1
         srow = {}
         click.echo("getting symbol %s(%s) history (%d/%d)" % (index, row['name'], i, total))
-        timeToMarket = timeInttoDate(ts_symbols.loc[index]['timeToMarket'])
+        ittm = ts_symbols.loc[index]['timeToMarket']
+        if ittm == 0:
+            continue
+        timeToMarket = timeInttoDate(ittm)
         if today - timeToMarket < timedelta(365):
             print('too new.')
             continue
