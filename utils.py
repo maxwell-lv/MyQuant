@@ -65,6 +65,17 @@ def get_last_trade_day(last_date = None):
     return last_date
 
 
+def ban_test(preclose, last):
+    zhangting = round(preclose * 1.1, 2)
+    dieting = round(preclose * 0.9, 2)
+    if last == zhangting:
+        return 1
+    elif last == dieting:
+        return -1
+    else:
+        return 0
+
+
 def yiziban_break(o, h, l, p):
     if h != l:
         if o > l:
