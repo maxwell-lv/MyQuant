@@ -5,6 +5,8 @@ from zipline.api import (
     symbol,
 )
 
+import WindPy as w
+
 def initialize(context):
     context.i = 0
 
@@ -14,3 +16,6 @@ def handle_data(context, data):
     sym = symbol('600433.SS')
     #sym = symbol('002337.SZ')
     print(sym)
+
+w.start()
+data = w.wss("000001.SZ", "sec_name")

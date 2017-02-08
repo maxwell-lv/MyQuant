@@ -25,7 +25,6 @@ def get_lianban_stock_list():
 base = None
 breaklist = []
 
-
 @asyncio.coroutine
 def main():
     global base
@@ -40,6 +39,9 @@ def main():
     base = df
     w.wsq(windcodes, "rt_last", func=wind_callback)
 
+def windcode_to_symbol(windcode):
+    return windcode[:6]
+
 def wind_callback(indata):
     global base, breaklist
     if indata.ErrorCode != 0:
@@ -50,7 +52,8 @@ def wind_callback(indata):
         if i in breaklist:
             continue
         if r['RT_LAST'] < base.loc[i]['zhangting']:
-            click.echo('%s break' % i)
+            data = w.wss(i, "sec_name")
+            click.echo('%s(%s) break' % (i, data.Data[0][0]))
             winsound.MessageBeep()
             breaklist.append(i)
 
