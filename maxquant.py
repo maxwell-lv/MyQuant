@@ -89,7 +89,7 @@ def main(extension, strict_extensions, default_extension):
 @click.option(
     '-b',
     '--bundle',
-    default='quantopian-quandl',
+    default='maxdl',
     metavar='BUNDLE-NAME',
     show_default=True,
     help='The data bundle to use for the simulation.',
