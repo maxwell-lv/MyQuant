@@ -1,9 +1,14 @@
 from xlrd import open_workbook
 import pandas as pd
+import sys
 
 
 p = 'd:\\projects\\ysdd.xlsm'
-w = 'd:\\projects\\total.xls'
+w = 'total.xls'
+
+p = sys.argv[1]
+
+
 wb = open_workbook(p)
 table = {}
 for s in wb.sheets():
@@ -15,5 +20,5 @@ for s in wb.sheets():
             table[name] = {}
         table[name][date] = value
 df = pd.DataFrame.from_dict(table, orient='index')
-df.sort_index(axis=1, inplace=True)
+df.sort_index(axis=1, inplace=True, ascending=False)
 df.to_excel(w)
