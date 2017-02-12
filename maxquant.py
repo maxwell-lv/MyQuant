@@ -262,10 +262,10 @@ def _run(handle_data,
         env = None
         choose_loader = None
 
-    blotter = Blotter(data_frequency = data_frequency,
+    blotter = Blotter(data_frequency=data_frequency,
                       asset_finder=env.asset_finder,
                       slippage_func=FixedSlippage(),
-                      commission = PerDollar(cost=0.00025))
+                      commission=PerDollar(cost=0.00025))
 
     perf = TradingAlgorithm(
         namespace=namespace,

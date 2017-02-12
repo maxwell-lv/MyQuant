@@ -76,7 +76,7 @@ def get_stock_info(environ,
     # fix the symbol exchange info
     df = df_symbols.apply(func=convert_symbol_series, axis=1)
 
-    asset_db_writer.write(df_symbols)
+    asset_db_writer.write(df)
     daily_bar_writer.write(get_hist_data(symbol_map, histories, start_session, end_session, calendar),
                            show_progress=show_progress)
     adjustment_writer.write()
@@ -129,7 +129,7 @@ def nonnew_bundle(environ,
     # fix the symbol exchange info
     df = df_symbols.apply(func=convert_symbol_series, axis=1)
 
-    asset_db_writer.write(df_symbols)
+    asset_db_writer.write(df)
     daily_bar_writer.write(get_hist_data(symbol_map, histories, start_session, end_session, calendar),
                            show_progress=show_progress)
     adjustment_writer.write()
