@@ -9,6 +9,8 @@ import re
 
 db = "sqlite:///d:\\projects\\ysdd.db"
 project_excel = "d:\\projects\\project.xlsx"
+perf_excel = "d:\\projects\\ysdd.xlsm"
+phase_excel = "d:\\projects\\phase.xlsx"
 Session = sessionmaker()
 
 
@@ -34,14 +36,26 @@ class Project(Base):
     numberofperiod = Column(Integer)
 
 
+class Performance(Base):
+    __tablename__ = 'Performance'
+    team = Column(String, primary_key=True)
+    project = Column(String, primary_key=True)
+    number = Column(Integer, primary_key=True)
+    reportdate = Column(String)
+    positionratio = Column(Float)
+    earningrate = Column(Float)
+
+
 class Phase(Base):
     __tablename__ = 'Phase'
     team = Column(String, primary_key=True)
     project = Column(String, primary_key=True)
     number = Column(Integer, primary_key=True)
-    settlementdate = Column(String)
-    positionratio = Column(Float)
-    earningrate = Column(Float)
+    settlementdate = Column(String, primary_key=True)
+    traderratio = Column(Float)
+    investorratio = Column(Float)
+    marketvalue = Column(Float)
+    redemption = Column(String)
 
 
 class MulitPK(Base):
@@ -62,30 +76,79 @@ def clear(engine):
 def parse_name(value):
     team = value.split('V', 1)[0]
     project = value.split(team, 1)[1]
-    project = project.split('期', 1)[0]
+    t = project.split('期', 1)
+    if len(t) > 1:
+        project = t[0] + t[1]
+    else:
+        project = t[0]
     return team, project
+
+
+def parse_period(value):
+    result = re.search("\d+\*\d+", value)
+    p, n = result.group(0).split('*')
+    return int(p), int(n)
+
+
+def parse_number_of_period(value, n):
+    return n - len(value.split(';')) + 1
+
+
+def float_to_date(value):
+    if type(value) is float:
+        return str(int(value))
+    elif type(value) is str:
+        return value
+
 
 
 if __name__ == "__main__":
     engine = create_engine(db)
     Session.configure(bind=engine)
     session = Session()
-    wb = open_workbook(project_excel)
-    sheet = wb.sheet_by_index(0)
-    names = []
-    for row in range(sheet.nrows):
-        s = sheet.cell(row, 1).value
-        name, project_name = parse_name(s)
-        p = Project()
-        p.name = project_name
-        p.team = name
-        p.orderamount = float(sheet.cell(row, 2).value)
-        p.riskcapital = float(sheet.cell(row, 3).value)
-        p.partneramount = int(sheet.cell(row, 5).value)
-        p.status = sheet.cell(row, 6).value
-        p.date = str(sheet.cell(row, 0).value)
-        if name not in names:
-            names.append(name)
-            session.add(Team(name=name, description="None"))
-        session.add(p)
-    session.commit()
+    # wb = open_workbook(project_excel)
+    # sheet = wb.sheet_by_index(0)
+    # names = []
+    # for row in range(sheet.nrows):
+    #     s = sheet.cell(row, 1).value
+    #     name, project_name = parse_name(s)
+    #     p = Project()
+    #     p.name = project_name
+    #     p.team = name
+    #     p.orderamount = float(sheet.cell(row, 2).value)
+    #     p.riskcapital = float(sheet.cell(row, 3).value)
+    #     p.partneramount = int(sheet.cell(row, 5).value)
+    #     p.status = sheet.cell(row, 6).value
+    #     p.date = str(sheet.cell(row, 0).value)
+    #     if name not in names:
+    #         names.append(name)
+    #         session.add(Team(name=name, description="None"))
+    #     session.add(p)
+    # session.commit()
+
+    # perf_wb = open_workbook(perf_excel)
+    # sheet = perf_wb.sheet_by_index(0)
+    # date = sheet.name
+    # for row in range(sheet.nrows):
+    #     period, number = parse_period(sheet.cell(row, 4).value)
+    #     team, project = parse_name(sheet.cell(row, 0).value)
+    #     position = sheet.cell(row, 2).value
+    #     earning = sheet.cell(row, 3).value
+    #     tp = sheet.cell_value(row, 1)
+    #     tp = tp if type(tp) is str else str(int(tp))
+    #     phase = parse_number_of_period(tp, number)
+    #     session.add(Performance(team=team, project=project, number=phase, reportdate=date, positionratio=position, earningrate=earning))
+    # session.commit()
+
+    # phase_wb = open_workbook(phase_excel)
+    # sheet = phase_wb.sheet_by_index(0)
+    # for row in range(0, sheet.nrows, 2):
+    #     settlementdate = float_to_date(sheet.cell_value(row, 0))
+    #     team, project = parse_name(sheet.cell_value(row, 1))
+    #     marketvalue = sheet.cell_value(row, 2)
+    #     investorratio = sheet.cell_value(row, 3)
+    #     traderratio = sheet.cell_value(row, 4)
+    #     redemption = sheet.cell_value(row, 5)
+    #     session.add(Phase(team=team, project=project, number=1, marketvalue=marketvalue, settlementdate=settlementdate, investorratio=investorratio, traderratio=traderratio, redemption=redemption))
+    # session.commit()
+
