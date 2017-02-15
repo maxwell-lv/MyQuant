@@ -6,8 +6,11 @@ Base = declarative_base()
 import sqlite3
 from xlrd import open_workbook
 import re
+import click
+from datetime import datetime, date
 
-db = "sqlite:///d:\\projects\\ysdd.db"
+
+db = "sqlite:///ysdd.db"
 project_excel = "d:\\projects\\project.xlsx"
 perf_excel = "d:\\projects\\ysdd.xlsm"
 phase_excel = "d:\\projects\\phase.xlsx"
@@ -58,10 +61,14 @@ class Phase(Base):
     redemption = Column(String)
 
 
-class MulitPK(Base):
-    __tablename__ = 'test'
-    team = Column(String, primary_key=True)
+class MyList(Base):
+    __tablename__ = 'list'
     name = Column(String, primary_key=True)
+    type = Column(String)
+    date = Column(Date, primary_key=True)
+    marketvalue = Column(Integer)
+    investorratio = Column(Float)
+    traderratio = Column(Float)
 
 
 def clear(engine):
@@ -101,11 +108,42 @@ def float_to_date(value):
         return value
 
 
+@click.group()
+def main():
+    click.echo('main')
 
-if __name__ == "__main__":
+
+@main.command()
+@click.argument('filename', type=click.Path(exists=True))
+def ls(filename):
+    click.echo('history convert')
     engine = create_engine(db)
+    MyList.metadata.create_all(engine)
     Session.configure(bind=engine)
     session = Session()
+    wb = open_workbook(filename)
+    for sheet in wb.sheets():
+        year = datetime.strptime(sheet.name, "%Y%m").date().year
+        for row in range(0, sheet.nrows, 2):
+            datestr = str(int(sheet.cell_value(row, 0)))
+            if len(datestr) == 3:
+                datestr = '0' + datestr
+            d = datetime.strptime(datestr, "%m%d").date()
+            reportdate = date(year, d.month, d.day)
+            name = sheet.cell_value(row, 1)
+            type = sheet.cell_value(row + 1, 1)
+            marketvalue = sheet.cell_value(row, 2)
+            investorratio = sheet.cell_value(row, 3)
+            traderratio = sheet.cell_value(row, 4)
+            session.add(MyList(name=name, type=type, date=reportdate, marketvalue=marketvalue, investorratio=investorratio, traderratio=traderratio))
+    session.commit()
+
+
+if __name__ == "__main__":
+    main()
+    # engine = create_engine(db)
+    # Session.configure(bind=engine)
+    # session = Session()
     # wb = open_workbook(project_excel)
     # sheet = wb.sheet_by_index(0)
     # names = []
