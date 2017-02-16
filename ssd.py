@@ -8,6 +8,7 @@ from xlrd import open_workbook
 import re
 import click
 from datetime import datetime, date
+import pandas as pd
 
 
 db = "sqlite:///ysdd.db"
@@ -148,6 +149,20 @@ def ls(filename):
                                investorratio=investorratio, traderratio=traderratio,
                                ratioperday=ratioperday))
     session.commit()
+
+
+@main.command()
+def stats():
+    engine = create_engine(db)
+    perf = pd.read_sql_table('list', engine)
+    t = perf.groupby(by=['name'])
+    mean = t['ratioperday'].mean()
+    median = t['ratioperday'].median()
+    d = {'mean': mean,
+         'medain': median}
+    df = pd.DataFrame(d)
+    click.echo(df)
+    df.to_excel('report.xlsx')
 
 
 if __name__ == "__main__":
