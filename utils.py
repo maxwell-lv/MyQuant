@@ -84,12 +84,14 @@ def yiziban_break(o, h, l, p):
             return -1
     return 0
 
+
 def symbol_to_wind(symbol):
     isymbol = int(symbol)
     if (isymbol>=600000):
         return symbol + '.SH'
     else:
         return symbol + '.SZ'
+
 
 def wind_to_dataframe(data):
     d = {}
@@ -99,6 +101,7 @@ def wind_to_dataframe(data):
         i += 1
     df = pd.DataFrame(d, index=data.Codes)
     return df
+
 
 if __name__ == "__main__":
     result = get_lianban_new_stock(date(year=2017, month=1, day=26))

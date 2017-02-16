@@ -69,6 +69,7 @@ class MyList(Base):
     marketvalue = Column(Integer)
     investorratio = Column(Float)
     traderratio = Column(Float)
+    ratioperday = Column(Float)
 
 
 def clear(engine):
@@ -95,6 +96,12 @@ def parse_period(value):
     result = re.search("\d+\*\d+", value)
     p, n = result.group(0).split('*')
     return int(p), int(n)
+
+
+def find_period(value):
+    result = re.search("\d+\*\d+", value)
+    p, n = result.group(0).split('*')
+    return int(p)
 
 
 def parse_number_of_period(value, n):
@@ -135,7 +142,11 @@ def ls(filename):
             marketvalue = sheet.cell_value(row, 2)
             investorratio = sheet.cell_value(row, 3)
             traderratio = sheet.cell_value(row, 4)
-            session.add(MyList(name=name, type=type, date=reportdate, marketvalue=marketvalue, investorratio=investorratio, traderratio=traderratio))
+            days = find_period(type)
+            ratioperday = investorratio / days
+            session.add(MyList(name=name, type=type, date=reportdate, marketvalue=marketvalue,
+                               investorratio=investorratio, traderratio=traderratio,
+                               ratioperday=ratioperday))
     session.commit()
 
 
