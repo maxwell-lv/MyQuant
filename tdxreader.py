@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import numpy as np
+from math import floor
 
 import struct
 """
@@ -62,6 +63,10 @@ class TdxReader:
 
     def get_mindf(self, code, exchange):
         data = [self._mindf_convert(row) for row in self.get_mline_by_code(code, exchange)]
+        df = pd.DataFrame(data=data, columns=('datetime', 'open', 'high', 'low', 'close', 'amount', 'volume'))
+        print(df.datetime)
+        df.index = pd.to_datetime(df.datetime)
+        return df[['open', 'high', 'low', 'close', 'volume']]
 
     def _df_convert(self, row):
         t_date = str(row[0])
@@ -81,9 +86,28 @@ class TdxReader:
 
     def _mindf_convert(self, row):
         t_date = row[0]
+        year = floor(t_date / 2048) + 2004
+        month = floor((t_date % 2048) / 100)
+        day = (t_date % 2014) % 100
+        datestr = "%d-%2d-%2d" % (year, month, day)
         t_minute = row[1]
-        open = row[2]
-        high = row[3]
+        hour = floor(t_minute / 60)
+        minute = t_minute % 60
+        timestr = "%d:%d:00" % (hour, minute)
+        datetimestr = "%s %s" % (datestr, timestr)
+
+        new_row = (
+            datetimestr,
+            row[2],
+            row[3],
+            row[4],
+            row[5],
+            row[6],
+            row[7]
+        )
+
+        return new_row
+
 
 if __name__ == '__main__':
     tdx_reader = TdxReader('c:\\new_tdx\\vipdoc\\')
