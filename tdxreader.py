@@ -65,7 +65,11 @@ class TdxReader:
         data = [self._mindf_convert(row) for row in self.get_mline_by_code(code, exchange)]
         df = pd.DataFrame(data=data, columns=('datetime', 'open', 'high', 'low', 'close', 'amount', 'volume'))
         print(df.datetime)
-        df.index = pd.to_datetime(df.datetime)
+        try:
+            df.index = pd.to_datetime(df.datetime)
+        except ValueError as err:
+            print("ValueError: ", df.datetime)
+            raise err
         return df[['open', 'high', 'low', 'close', 'volume']]
 
     def _df_convert(self, row):
@@ -88,12 +92,12 @@ class TdxReader:
         t_date = row[0]
         year = floor(t_date / 2048) + 2004
         month = floor((t_date % 2048) / 100)
-        day = (t_date % 2014) % 100
-        datestr = "%d-%2d-%2d" % (year, month, day)
+        day = (t_date % 2048) % 100
+        datestr = "%d-%02d-%02d" % (year, month, day)
         t_minute = row[1]
         hour = floor(t_minute / 60)
         minute = t_minute % 60
-        timestr = "%d:%d:00" % (hour, minute)
+        timestr = "%02d:%02d:00" % (hour, minute)
         datetimestr = "%s %s" % (datestr, timestr)
 
         new_row = (
@@ -114,9 +118,9 @@ if __name__ == '__main__':
     try:
         #for row in tdx_reader.parse_data_by_file('/Volumes/more/data/vipdoc/sh/lday/sh600000.day'):
         #    print(row)
-        for row in tdx_reader.get_mline_by_code('600000', 'sh'):
+        for row in tdx_reader.get_mline_by_code('600433', 'sh'):
             print(row)
     except TdxFileNotFoundException as e:
         pass
 
-    print(tdx_reader.get_mindf('600000', 'sh'))
+    print(tdx_reader.get_mindf('600433', 'sh'))
