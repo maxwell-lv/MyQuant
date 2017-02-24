@@ -2,6 +2,8 @@ import pandas as pd
 import os
 import numpy as np
 from math import floor
+from sqlalchemy import create_engine
+
 
 import struct
 """
@@ -70,7 +72,8 @@ class TdxReader:
         except ValueError as err:
             print("ValueError: ", df.datetime)
             raise err
-        return df[['open', 'high', 'low', 'close', 'volume']]
+        #return df[['open', 'high', 'low', 'close', 'volume']]
+        return df
 
     def _df_convert(self, row):
         t_date = str(row[0])
@@ -111,6 +114,13 @@ class TdxReader:
         )
 
         return new_row
+
+
+    def to_sql(self, sql_url, symbol):
+        engine = create_engine(sql_url)
+        old = pd.read_sql(symbol, engine)
+        new = self.get_mindf(symbol)
+        new = old.merge(new, left_index=True)
 
 
 if __name__ == '__main__':
