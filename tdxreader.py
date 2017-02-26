@@ -2,7 +2,9 @@ import pandas as pd
 import os
 import numpy as np
 from math import floor
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData, Table
+import tushare as ts
+from utils import get_all_tdx_symbols
 
 
 import struct
@@ -19,6 +21,7 @@ class TdxReader:
 
     def __init__(self, vipdoc_path):
         self.vipdoc_path = vipdoc_path
+        self.engine = None
 
     def get_kline_by_code(self, code, exchange):
         fname = os.path.join(self.vipdoc_path, exchange)
@@ -66,14 +69,12 @@ class TdxReader:
     def get_mindf(self, code, exchange):
         data = [self._mindf_convert(row) for row in self.get_mline_by_code(code, exchange)]
         df = pd.DataFrame(data=data, columns=('datetime', 'open', 'high', 'low', 'close', 'amount', 'volume'))
-        print(df.datetime)
         try:
             df.index = pd.to_datetime(df.datetime)
         except ValueError as err:
             print("ValueError: ", df.datetime)
             raise err
-        #return df[['open', 'high', 'low', 'close', 'volume']]
-        return df
+        return df[['open', 'high', 'low', 'close', 'amount', 'volume']]
 
     def _df_convert(self, row):
         t_date = str(row[0])
@@ -115,22 +116,38 @@ class TdxReader:
 
         return new_row
 
+    def to_sql(self, symbol, exchange):
+        table_name = exchange+symbol
+        table = Table(table_name, MetaData(bind=self.engine))
+        new = self.get_mindf(symbol, exchange)
+        if table.exists():
+            old = pd.read_sql_table(exchange+symbol, self.engine, index_col='datetime')
+            if new.index[-1] <= old.index[-1]:
+                return
+            else:
+                df_to_append = new[old.index[-1]:]
+        else:
+            df_to_append = new
+        df_to_append.to_sql(table_name, self.engine, if_exists='append')
 
-    def to_sql(self, sql_url, symbol):
-        engine = create_engine(sql_url)
-        old = pd.read_sql(symbol, engine)
-        new = self.get_mindf(symbol)
-        new = old.merge(new, left_index=True)
+    def save_minute_line(self, sql_url):
+        self.engine = create_engine(sql_url)
+        tdx_symbol_list = get_all_tdx_symbols()
+        for symbol in tdx_symbol_list:
+            self.to_sql(symbol=symbol[0], exchange=symbol[1])
 
 
 if __name__ == '__main__':
-    tdx_reader = TdxReader('c:\\new_tdx\\vipdoc\\')
-    try:
-        #for row in tdx_reader.parse_data_by_file('/Volumes/more/data/vipdoc/sh/lday/sh600000.day'):
-        #    print(row)
-        for row in tdx_reader.get_mline_by_code('600433', 'sh'):
-            print(row)
-    except TdxFileNotFoundException as e:
-        pass
+    tdx_reader = TdxReader('c:\\new_zx_allin1\\vipdoc\\')
+    # try:
+    #     #for row in tdx_reader.parse_data_by_file('/Volumes/more/data/vipdoc/sh/lday/sh600000.day'):
+    #     #    print(row)
+    #     for row in tdx_reader.get_mline_by_code('600433', 'sh'):
+    #         print(row)
+    # except TdxFileNotFoundException as e:
+    #     pass
+    #
+    # print(tdx_reader.get_mindf('600433', 'sh'))
+    sql_url = "sqlite:///lc1.db"
+    tdx_reader.save_minute_line(sql_url=sql_url)
 
-    print(tdx_reader.get_mindf('600433', 'sh'))

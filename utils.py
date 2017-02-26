@@ -87,7 +87,7 @@ def yiziban_break(o, h, l, p):
 
 def symbol_to_wind(symbol):
     isymbol = int(symbol)
-    if (isymbol>=600000):
+    if (isymbol >= 600000):
         return symbol + '.SH'
     else:
         return symbol + '.SZ'
@@ -101,6 +101,22 @@ def wind_to_dataframe(data):
         i += 1
     df = pd.DataFrame(d, index=data.Codes)
     return df
+
+
+def symbol_to_tdx(symbol):
+    isymbol = int(symbol)
+    if (isymbol >= 600000):
+        return symbol, 'sh'
+    else:
+        return symbol, 'sz'
+
+
+def get_all_tdx_symbols():
+    stocks = ts.get_stock_basics()
+    tdx_symbol_list = []
+    for symbol in stocks.index:
+        tdx_symbol_list.append(symbol_to_tdx(symbol))
+    return tdx_symbol_list
 
 
 if __name__ == "__main__":
