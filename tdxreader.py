@@ -5,6 +5,7 @@ from math import floor
 from sqlalchemy import create_engine, MetaData, Table
 import tushare as ts
 from utils import get_all_tdx_symbols
+import click
 
 
 import struct
@@ -133,12 +134,26 @@ class TdxReader:
     def save_minute_line(self, sql_url):
         self.engine = create_engine(sql_url)
         tdx_symbol_list = get_all_tdx_symbols()
+        total = len(tdx_symbol_list)
+        i = 0
         for symbol in tdx_symbol_list:
+            i += 1
+            click.echo("saving symbol %s%s (%d/%d)" %(symbol[1], symbol[0], i, total))
             self.to_sql(symbol=symbol[0], exchange=symbol[1])
 
 
+@click.command()
+@click.argument('vipdoc', type=click.Path(exists=True))
+@click.argument('sql_url', type=click.Path())
+def main(vipdoc, sql_url):
+    click.echo('minute line saving...')
+    tdx_reader = TdxReader(vipdoc)
+    tdx_reader.save_minute_line("sqlite:///" + sql_url)
+
+
 if __name__ == '__main__':
-    tdx_reader = TdxReader('c:\\new_zx_allin1\\vipdoc\\')
+    main()
+    #tdx_reader = TdxReader('c:\\new_zx_allin1\\vipdoc\\')
     # try:
     #     #for row in tdx_reader.parse_data_by_file('/Volumes/more/data/vipdoc/sh/lday/sh600000.day'):
     #     #    print(row)
@@ -148,6 +163,6 @@ if __name__ == '__main__':
     #     pass
     #
     # print(tdx_reader.get_mindf('600433', 'sh'))
-    sql_url = "sqlite:///lc1.db"
-    tdx_reader.save_minute_line(sql_url=sql_url)
+    #sql_url = "sqlite:///lc1.db"
+    #tdx_reader.save_minute_line(sql_url=sql_url)
 
