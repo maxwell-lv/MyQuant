@@ -55,4 +55,18 @@ def repay():
 
     wb.save('repay.xls')
 
-repay()
+def format_date():
+    global repay_sheet
+    wb = Workbook()
+    srepay = wb.add_sheet('项目结算信息')
+
+    from math import floor
+    for row in range(1, repay_sheet.nrows):
+        raw_date = int(repay_sheet.cell(row, 2).value)
+        month = floor(raw_date / 100)
+        day = raw_date % 100
+        year = 2016 if raw_date > 323 else 2017
+        date_str = '%d-%02d-%02d' % (year, month, day)
+        srepay.write(row, 0, date_str)
+    wb.save('repay.xls')
+format_date()
