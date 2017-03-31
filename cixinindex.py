@@ -59,8 +59,10 @@ def calculate_cx_index():
     result = df.apply(lambda value:value != 0)
     index = result.sum()
     index.plot()
+    index2 = df.sum()/index
+    index2.plot()
     plt.show()
 
 
-#cxindex(date(2015, 1, 1))
+cxindex(date(2016, 1, 1))
 calculate_cx_index()
