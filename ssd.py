@@ -151,10 +151,15 @@ def ls(filename):
     session.commit()
 
 
+def convert_project_name(name):
+    parts = name.split('V')
+    return parts[0]
+
 @main.command()
 def stats():
     engine = create_engine(db)
     perf = pd.read_sql_table('list', engine)
+    perf['name'] = perf['name'].apply(convert_project_name)
     t = perf.groupby(by=['name'])
     mean = t['ratioperday'].mean()
     median = t['ratioperday'].median()
